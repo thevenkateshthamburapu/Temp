@@ -1,0 +1,223 @@
+package com.paybooks;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.concurrent.Phaser;
+
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.collection.PdfTargetDictionary;
+import com.itextpdf.text.pdf.draw.LineSeparator;
+
+public class Paybook1 {
+
+	static PdfPCell insertMainCellData(Paragraph paragraph, int alignment) {
+		PdfPCell cell = new PdfPCell(paragraph);
+		float padding=5;
+		if (alignment >= 0) {
+			cell.setHorizontalAlignment(alignment);
+		}
+		cell.setColspan(2);
+		cell.setPadding(padding);
+		return cell;
+	}
+	static PdfPCell insertCellData(String text,boolean leftAlign,boolean rightAlign,boolean isBold) {
+		PdfPCell cell;		
+		if(rightAlign&&isBold){
+			cell = new PdfPCell(new Paragraph(text,FontFactory.getFont(FontFactory.TIMES, 11,Font.BOLD)));
+			cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+			//cell.setBorder(PdfPCell.BOTTOM);
+		}else if(leftAlign&&isBold){
+			cell = new PdfPCell(new Paragraph(text,FontFactory.getFont(FontFactory.TIMES, 11,Font.BOLD)));
+			cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+		}else if(rightAlign){
+			cell = new PdfPCell(new Paragraph(text,FontFactory.getFont(FontFactory.TIMES, 10)));
+			cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+		}else if(leftAlign){
+			cell = new PdfPCell(new Paragraph(text,FontFactory.getFont(FontFactory.TIMES, 10)));
+			cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+		}else{
+			cell = new PdfPCell(new Paragraph(text,FontFactory.getFont(FontFactory.TIMES, 10)));
+		}
+		cell.setBorder(Rectangle.NO_BORDER);
+		float padding = 5;
+		cell.setColspan(2);
+		cell.setPadding(padding);
+		return cell;
+	}
+	static PdfPCell insertleaveData(String text,boolean isBold){
+		PdfPCell cell ;
+		if(isBold){
+			cell =new PdfPCell(new Paragraph(text,FontFactory.getFont(FontFactory.TIMES, 11,Font.BOLD)));
+			cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		}else{
+			cell =new PdfPCell(new Paragraph(text,FontFactory.getFont(FontFactory.TIMES, 10)));
+		}
+		float padding = 5;
+		cell.setPadding(padding);
+		return cell;
+		
+	}
+	public static void main(String[] args) {
+
+		Document document = new Document(PageSize.A4);
+		try {
+			PdfWriter.getInstance(document, new FileOutputStream("Paybook1.pdf"));
+			document.open();
+			// Main Table
+			PdfPTable mainTable = new PdfPTable(2);
+			mainTable.setWidthPercentage(100);
+			
+			// float[] columnWidths = {100f, 100f,100f};
+			// PdfPTable mainTable=new PdfPTable(columnWidths);
+			// Image
+			Image img = Image.getInstance("images/full_logo.png");
+			img.scaleAbsoluteHeight(50);
+			PdfPCell imageCell = new PdfPCell(img, true);
+			imageCell.setColspan(2);
+			imageCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			imageCell.setFixedHeight(50);
+			imageCell.setPadding(5);
+			/*
+			 * System.out.println(img.getWidth());
+			 * System.out.println(img.getHeight());
+			 */
+			mainTable.addCell(imageCell);
+
+			/*
+			 * PdfPCell addressCell=new PdfPCell(new Paragraph(
+			 * "5th Floor, V V Vintage Boulevard, Somajiguda, Hyderabad - 500082"
+			 * )); addressCell.setColspan(2);
+			 * addressCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			 * mainTable.addCell(addressCell);
+			 */
+			PdfPCell addressCell = insertMainCellData(
+					new Paragraph("5th Floor, V V Vintage Boulevard, Somajiguda, Hyderabad - 500082"),
+					Element.ALIGN_CENTER);
+			mainTable.addCell(addressCell);
+			/*
+			 * PdfPCell title=new PdfPCell(new Paragraph("PAY SLIP"
+			 * ,FontFactory.getFont(FontFactory.COURIER,14,Font.BOLD)));
+			 * title.setBackgroundColor(BaseColor.GREEN); title.setColspan(2);
+			 * title.setHorizontalAlignment(Element.ALIGN_CENTER);
+			 */
+			PdfPCell title = insertMainCellData(
+					new Paragraph("PAY SLIP", FontFactory.getFont(FontFactory.TIMES, 14, Font.BOLD)),
+					Element.ALIGN_CENTER);
+			title.setBackgroundColor(BaseColor.GREEN);
+			mainTable.addCell(title);
+			//Employee Information
+			PdfPTable empInfo1=new PdfPTable(4);
+			empInfo1.addCell(insertCellData("Employee Number",false,false,false));
+			empInfo1.addCell(insertCellData("00085",false,false,false));
+			empInfo1.addCell(insertCellData("Employee Name",false,false,false));
+			empInfo1.addCell(insertCellData("Venkatesh Thamburapu",false,false,false));
+			empInfo1.addCell(insertCellData("Department",false,false,false));
+			empInfo1.addCell(insertCellData("Software",false,false,false));
+			empInfo1.addCell(insertCellData("Designation",false,false,false));
+			empInfo1.addCell(insertCellData("Junior Software Engineer",false,false,false));
+			empInfo1.addCell(insertCellData("Attendance",false,false,false));
+			empInfo1.addCell(insertCellData("29.00",false,false,false));
+			mainTable.addCell(empInfo1);
+			PdfPTable empInfo2=new PdfPTable(4);
+			empInfo2.addCell(insertCellData("Month",false,false,false));
+			empInfo2.addCell(insertCellData("February-2020",false,false,false));
+			empInfo2.addCell(insertCellData("UAN",false,false,false));
+			empInfo2.addCell(insertCellData("101373654766",false,false,false));
+			empInfo2.addCell(insertCellData("ESIC Number",false,false,false));
+			empInfo2.addCell(insertCellData("5214904692",false,false,false));
+			empInfo2.addCell(insertCellData("Bank Account No.",false,false,false));
+			empInfo2.addCell(insertCellData("32028342334",false,false,false));
+			empInfo2.addCell(insertCellData("PF Number",false,false,false));
+			empInfo2.addCell(insertCellData("APHYD00811320000010080",false,false,false));
+			mainTable.addCell(empInfo2);
+			PdfPTable leavesTable=new PdfPTable(5);
+			leavesTable.addCell(insertleaveData("Leave Name",true));
+			leavesTable.addCell(insertleaveData("Leave Alloted",true));
+			leavesTable.addCell(insertleaveData("Leave Taken This Month",true));
+			leavesTable.addCell(insertleaveData("Leave Taken YTD",true));
+			leavesTable.addCell(insertleaveData("Leave Balance",true));
+			leavesTable.addCell(insertleaveData("Loss of Pay",false));
+			leavesTable.addCell(insertleaveData("",false));
+			leavesTable.addCell(insertleaveData("0.00",false));
+			leavesTable.addCell(insertleaveData("0.00",false));
+			leavesTable.addCell(insertleaveData("",false));
+			leavesTable.addCell(insertleaveData("Annual Leave",false));
+			leavesTable.addCell(insertleaveData("4.00",false));
+			leavesTable.addCell(insertleaveData("0.00",false));
+			leavesTable.addCell(insertleaveData("3.00",false));
+			leavesTable.addCell(insertleaveData("1.00",false));
+			PdfPCell leveasCell=new PdfPCell(leavesTable);
+			leveasCell.setColspan(2);
+			mainTable.addCell(leveasCell);
+			//pay info
+			PdfPTable earnInfo=new PdfPTable(4);
+			earnInfo.addCell(insertCellData("Earnings",true,false,true));
+			earnInfo.addCell(insertCellData("Amount(Rs)",false,true,true));
+			earnInfo.addCell(insertCellData("BASIC",true,false,false));
+			earnInfo.addCell(insertCellData("5000.00",false,true,false));
+			earnInfo.addCell(insertCellData("House Rent Allowance",true,false,false));
+			earnInfo.addCell(insertCellData("2000.00",false,true,false));
+			earnInfo.addCell(insertCellData("Conveyance Allowance",true,false,false));
+			earnInfo.addCell(insertCellData("1600.00",false,true,false));
+			earnInfo.addCell(insertCellData("Special Allowance",true,false,false));
+			earnInfo.addCell(insertCellData("504.00",false,true,false));
+			earnInfo.addCell(insertCellData("Total Earnings",true,false,true));
+			earnInfo.addCell(insertCellData("9104.00",false,true,true));
+			mainTable.addCell(earnInfo);
+			PdfPTable deductionInfo=new PdfPTable(4);
+			deductionInfo.addCell(insertCellData("Deductions",true,false,true));
+			deductionInfo.addCell(insertCellData("Amount(Rs)",false,true,true));
+			//deductionInfo.setFooterRows(PdfPTable.LINECANVAS);
+			deductionInfo.addCell(insertCellData("Provident Fund",true,false,false));
+			deductionInfo.addCell(insertCellData("600.00",false,true,false));
+			deductionInfo.addCell(insertCellData("Employee State Insurance",true,false,false));
+			deductionInfo.addCell(insertCellData("69.00",false,true,false));
+			deductionInfo.addCell(insertCellData("",true,false,false));
+			deductionInfo.addCell(insertCellData("",false,true,false));
+			deductionInfo.addCell(insertCellData("",true,false,false));
+			deductionInfo.addCell(insertCellData("",false,true,false));
+			deductionInfo.addCell(insertCellData("Total Deductions",true,false,true));
+			deductionInfo.addCell(insertCellData("669.00",false,true,true));
+			deductionInfo.addCell(insertCellData("Net Amount",true,false,true));
+			deductionInfo.addCell(insertCellData("8435.00",false,true,true));
+			PdfPCell companyName=new PdfPCell(new Paragraph("For Technical Strategies India Private Limited"));
+			companyName.setColspan(2);
+			deductionInfo.addCell(companyName);
+			mainTable.addCell(deductionInfo);
+			document.add(mainTable);
+			System.out.println("Pdf Generate Successfully");
+		} catch (FileNotFoundException e) {
+			System.out.println("File Not Found Exception");
+			e.printStackTrace();
+		} catch (DocumentException e) {
+			System.out.println("Document Exception");
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			System.out.println("Malformed URL Exception");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("IO Exception");
+			e.printStackTrace();
+		} finally {
+			document.close();
+		}
+
+	}
+
+}
